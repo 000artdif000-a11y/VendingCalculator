@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeonVend // Business Simulator</title>
-
-    <!-- Fonts: Space Grotesk (Headings) and Inter (Body) -->
+    
+    <!-- Шрифты: Space Grotesk (Заголовки) и Inter (Текст) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Tailwind Config for Custom Colors -->
+    <!-- Конфигурация Tailwind для кастомных цветов -->
     <script>
         tailwind.config = {
             theme: {
@@ -40,10 +40,10 @@
     </script>
 
     <style>
-        /* Custom Styles for Cyberpunk Feel */
+        /* Кастомные стили для Киберпанк темы */
         body {
             background-color: #050505;
-            background-image:
+            background-image: 
                 linear-gradient(rgba(212, 255, 112, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(212, 255, 112, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
@@ -62,7 +62,7 @@
             text-shadow: 0 0 10px rgba(212, 255, 112, 0.3);
         }
 
-        /* Custom Range Slider Styling */
+        /* Стиль слайдеров */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -92,41 +92,59 @@
         input[type=range]:focus::-webkit-slider-runnable-track {
             background: #444;
         }
+
+        /* Анимация кнопок языка */
+        .lang-btn {
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active {
+            color: #050505;
+            background-color: #d4ff70;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 flex flex-col gap-6">
 
-    <!-- Header -->
+    <!-- Хедер -->
     <header class="w-full max-w-7xl mx-auto flex justify-between items-center mb-4">
         <div>
             <h1 class="font-mono text-3xl md:text-4xl font-bold text-white tracking-tighter">
                 NEON<span class="text-cyber-lime glow-text">VEND</span>
             </h1>
-            <p class="text-gray-400 text-sm tracking-widest uppercase mt-1">Advanced Realism Simulator</p>
+            <p class="text-gray-400 text-sm tracking-widest uppercase mt-1" data-i18n="subtitle">Advanced Realism Simulator</p>
         </div>
-        <div class="hidden md:block text-right">
-            <div class="text-xs text-cyber-cyan font-mono border border-cyber-cyan/30 px-3 py-1 rounded bg-cyber-cyan/5">
-                SYSTEM STATUS: ONLINE
+        <div class="flex items-center gap-4">
+            <!-- Переключатель языка -->
+            <div class="flex border border-cyber-lime/30 rounded overflow-hidden font-mono text-xs">
+                <button onclick="setLang('en')" id="btn-en" class="lang-btn px-3 py-1 text-cyber-lime hover:bg-cyber-lime/10 active">EN</button>
+                <button onclick="setLang('ru')" id="btn-ru" class="lang-btn px-3 py-1 text-cyber-lime hover:bg-cyber-lime/10">RU</button>
+            </div>
+            
+            <div class="hidden md:block text-right">
+                <div class="text-xs text-cyber-cyan font-mono border border-cyber-cyan/30 px-3 py-1 rounded bg-cyber-cyan/5">
+                    SYSTEM STATUS: ONLINE
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Grid -->
+    <!-- Основная сетка -->
     <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Left Column: Controls (4 cols) -->
+        
+        <!-- Левая колонка: Управление (4 cols) -->
         <section class="lg:col-span-4 flex flex-col gap-6">
             <div class="glass-panel rounded-2xl p-6 lg:p-8 h-full">
                 <h2 class="font-mono text-xl text-white mb-8 border-b border-white/10 pb-4">
-                    <span class="text-cyber-lime mr-2">///</span> CONFIGURATION
+                    <span class="text-cyber-lime mr-2">///</span> <span data-i18n="config_title">CONFIGURATION</span>
                 </h2>
 
                 <div class="space-y-8">
-                    <!-- Slider A: Price -->
+                    <!-- Слайдер A: Цена -->
                     <div class="group">
                         <div class="flex justify-between items-end mb-3">
-                            <label class="text-sm text-gray-400 font-medium">Price per Cup</label>
-                            <span class="font-mono text-xl text-cyber-lime font-bold"><span id="val-price">30</span> ₴</span>
+                            <label class="text-sm text-gray-400 font-medium" data-i18n="label_price">Price per Cup</label>
+                            <span class="font-mono text-xl text-cyber-lime font-bold"><span id="val-price">30</span> <span data-currency-symbol>₴</span></span>
                         </div>
                         <input type="range" id="input-price" min="20" max="50" step="1" value="30">
                         <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
@@ -134,11 +152,11 @@
                         </div>
                     </div>
 
-                    <!-- Slider B: Sales -->
+                    <!-- Слайдер B: Продажи -->
                     <div class="group">
                         <div class="flex justify-between items-end mb-3">
-                            <label class="text-sm text-gray-400 font-medium">Sales / Day (Target)</label>
-                            <span class="font-mono text-xl text-cyber-cyan font-bold"><span id="val-sales">40</span> cups</span>
+                            <label class="text-sm text-gray-400 font-medium" data-i18n="label_sales">Sales / Day (Target)</label>
+                            <span class="font-mono text-xl text-cyber-cyan font-bold"><span id="val-sales">40</span> <span data-i18n="unit_cups">cups</span></span>
                         </div>
                         <input type="range" id="input-sales" min="20" max="160" step="5" value="40">
                         <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
@@ -146,11 +164,11 @@
                         </div>
                     </div>
 
-                    <!-- Slider C: Start Units -->
+                    <!-- Слайдер C: Стартовые машины -->
                     <div class="group">
                         <div class="flex justify-between items-end mb-3">
-                            <label class="text-sm text-gray-400 font-medium">Starting Machines</label>
-                            <span class="font-mono text-xl text-white font-bold"><span id="val-machines">1</span> units</span>
+                            <label class="text-sm text-gray-400 font-medium" data-i18n="label_machines">Starting Machines</label>
+                            <span class="font-mono text-xl text-white font-bold"><span id="val-machines">1</span> <span data-i18n="unit_units">units</span></span>
                         </div>
                         <input type="range" id="input-machines" min="1" max="10" step="1" value="1">
                         <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
@@ -158,11 +176,11 @@
                         </div>
                     </div>
 
-                    <!-- Slider V: Period -->
+                    <!-- Слайдер V: Период -->
                     <div class="group">
                         <div class="flex justify-between items-end mb-3">
-                            <label class="text-sm text-gray-400 font-medium">Reinvestment Period</label>
-                            <span class="font-mono text-xl text-white font-bold"><span id="val-period">12</span> months</span>
+                            <label class="text-sm text-gray-400 font-medium" data-i18n="label_period">Reinvestment Period</label>
+                            <span class="font-mono text-xl text-white font-bold"><span id="val-period">12</span> <span data-i18n="unit_months">months</span></span>
                         </div>
                         <input type="range" id="input-period" min="6" max="36" step="1" value="12">
                         <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
@@ -170,81 +188,82 @@
                         </div>
                     </div>
 
-                    <!-- Slider R: Reinvestment Rate (NEW) -->
+                    <!-- Слайдер R: Ставка реинвестирования -->
                     <div class="group">
                         <div class="flex justify-between items-end mb-3">
-                            <label class="text-sm text-gray-400 font-medium">Reinvestment Rate</label>
+                            <label class="text-sm text-gray-400 font-medium" data-i18n="label_rate">Reinvestment Rate</label>
                             <span class="font-mono text-xl text-purple-400 font-bold"><span id="val-rate">50</span>%</span>
                         </div>
                         <input type="range" id="input-rate" min="0" max="100" step="5" value="50">
                         <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
-                            <span>0% (Cash Out)</span><span>100% (Growth)</span>
+                            <span data-i18n="rate_low">0% (Cash Out)</span><span data-i18n="rate_high">100% (Growth)</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-white/10">
-                    <div class="text-xs text-gray-500 font-mono mb-2">FRICTION FACTORS ENABLED</div>
+                    <div class="text-xs text-gray-500 font-mono mb-2" data-i18n="friction_title">FRICTION FACTORS ENABLED</div>
                     <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
-                        <div><span class="text-red-400">●</span> Install Lag (1mo)</div>
-                        <div><span class="text-red-400">●</span> Ramp-Up (50-100%)</div>
-                        <div><span class="text-red-400">●</span> Weather (-10%/+5%)</div>
-                        <div><span class="text-cyber-lime">●</span> Machine Cost: 60k</div>
+                        <div><span class="text-red-400">●</span> <span data-i18n="fric_lag">Install Lag (1mo)</span></div>
+                        <div><span class="text-red-400">●</span> <span data-i18n="fric_ramp">Ramp-Up (50-100%)</span></div>
+                        <div><span class="text-red-400">●</span> <span data-i18n="fric_weather">Weather (-10%/+5%)</span></div>
+                        <div><span class="text-cyber-lime">●</span> <span data-i18n="fric_cost">Machine Cost: 60k</span></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Right Column: Dashboard (8 cols) -->
+        <!-- Правая колонка: Дашборд (8 cols) -->
         <section class="lg:col-span-8 flex flex-col gap-6">
-
-            <!-- Unit Economics Cards -->
+            
+            <!-- Карточки Unit Economics -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Revenue Card -->
+                <!-- Выручка -->
                 <div class="glass-panel p-5 rounded-xl border-l-2 border-cyber-lime">
-                    <div class="text-gray-500 text-xs font-mono uppercase">Avg Mo. Revenue</div>
+                    <div class="text-gray-500 text-xs font-mono uppercase" data-i18n="kpi_rev_title">Avg Mo. Revenue</div>
                     <div class="text-2xl font-bold text-white mt-1" id="kpi-revenue">0 ₴</div>
-                    <div class="text-xs text-cyber-lime mt-1 font-mono">Last Month Snapshot</div>
+                    <div class="text-xs text-cyber-lime mt-1 font-mono" data-i18n="kpi_rev_sub">Last Month Snapshot</div>
                 </div>
 
-                <!-- Net Profit Card -->
+                <!-- Прибыль -->
                 <div class="glass-panel p-5 rounded-xl border-l-2 border-cyber-cyan">
-                    <div class="text-gray-500 text-xs font-mono uppercase">Net Profit (Mo)</div>
+                    <div class="text-gray-500 text-xs font-mono uppercase" data-i18n="kpi_prof_title">Net Profit (Mo)</div>
                     <div class="text-2xl font-bold text-white mt-1" id="kpi-profit">0 ₴</div>
-                    <div class="text-xs text-gray-400 mt-1 font-mono">After Tax & OpEx</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono" data-i18n="kpi_prof_sub">After Tax & OpEx</div>
                 </div>
 
-                <!-- Margin Card -->
+                <!-- Маржа -->
                 <div class="glass-panel p-5 rounded-xl border-l-2 border-purple-500">
-                    <div class="text-gray-500 text-xs font-mono uppercase">Net Margin</div>
+                    <div class="text-gray-500 text-xs font-mono uppercase" data-i18n="kpi_mar_title">Net Margin</div>
                     <div class="text-2xl font-bold text-white mt-1" id="kpi-margin">0%</div>
-                    <div class="text-xs text-gray-400 mt-1 font-mono">Profitability</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono" data-i18n="kpi_mar_sub">Profitability</div>
                 </div>
 
-                <!-- Break Even Card -->
+                <!-- Кэш -->
                 <div class="glass-panel p-5 rounded-xl border-l-2 border-orange-500">
-                    <div class="text-gray-500 text-xs font-mono uppercase">Cash Available</div>
+                    <div class="text-gray-500 text-xs font-mono uppercase" data-i18n="kpi_cash_title">Cash Available</div>
                     <div class="text-2xl font-bold text-white mt-1" id="kpi-cash">0 ₴</div>
-                    <div class="text-xs text-gray-400 mt-1 font-mono">Machine Fund</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono" data-i18n="kpi_cash_sub">Machine Fund</div>
                 </div>
             </div>
 
-            <!-- Chart Container -->
-            <div class="glass-panel p-6 rounded-2xl flex-1 min-h-[300px] flex flex-col relative">
+            <!-- Контейнер Графика -->
+            <div class="glass-panel p-6 rounded-2xl flex-1 min-h-[400px] flex flex-col relative">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-mono text-lg text-white">REALISTIC GROWTH PROJECTION</h3>
+                    <h3 class="font-mono text-lg text-white" data-i18n="chart_title">REALISTIC GROWTH PROJECTION</h3>
                     <div class="flex items-center gap-2 text-xs font-mono">
-                        <span class="w-3 h-3 bg-cyber-lime rounded-full"></span> Active Machines
+                        <span class="w-3 h-3 bg-cyber-lime rounded-full"></span> <span data-i18n="chart_legend">Active Machines</span>
                     </div>
                 </div>
-                <div class="relative flex-1 w-full h-full">
+                <!-- Важно: относительное позиционирование и размеры для canvas -->
+                <div class="relative w-full h-full flex-grow">
                     <canvas id="growthChart"></canvas>
                 </div>
             </div>
 
-            <!-- Summary Box -->
+            <!-- Блок сводки -->
             <div class="glass-panel p-6 rounded-2xl bg-gradient-to-r from-cyber-lime/10 to-transparent border border-cyber-lime/20">
-                <h4 class="font-mono text-cyber-lime text-sm mb-2 uppercase tracking-wide">Simulation Outcome</h4>
+                <h4 class="font-mono text-cyber-lime text-sm mb-2 uppercase tracking-wide" data-i18n="summary_title">Simulation Outcome</h4>
                 <p class="text-white/90 text-lg leading-relaxed" id="summary-text">
                     Initializing...
                 </p>
@@ -254,25 +273,111 @@
     </main>
 
     <footer class="max-w-7xl mx-auto w-full text-center text-gray-600 text-xs font-mono py-6">
-        NEONVEND SYSTEMS v2.0 // REALISM ENGINE ENABLED
+        <span data-i18n="footer">NEONVEND SYSTEMS v2.0 // REALISM ENGINE ENABLED</span>
     </footer>
 
-    <!-- LOGIC -->
+    <!-- ЛОГИКА -->
     <script>
-        // Constants
+        // Константы
         const MACHINE_COST = 60000;
-        const OPEX_PER_MACHINE = 2000 + 1500 + 500; // Rent + Logistics + Repair
+        const OPEX_PER_MACHINE = 2000 + 1500 + 500; // Аренда + Логистика + Ремонт
         const FIXED_TAX = 3500;
         const DAYS_IN_MONTH = 30;
         const COGS_RATE = 0.35;
 
-        // Elements
+        // --- СИСТЕМА ПЕРЕВОДОВ ---
+        const translations = {
+            en: {
+                subtitle: "Advanced Realism Simulator",
+                config_title: "CONFIGURATION",
+                label_price: "Price per Cup",
+                label_sales: "Sales / Day (Target)",
+                label_machines: "Starting Machines",
+                label_period: "Reinvestment Period",
+                label_rate: "Reinvestment Rate",
+                unit_cups: "cups",
+                unit_units: "units",
+                unit_months: "months",
+                rate_low: "0% (Cash Out)",
+                rate_high: "100% (Growth)",
+                friction_title: "FRICTION FACTORS ENABLED",
+                fric_lag: "Install Lag (1mo)",
+                fric_ramp: "Ramp-Up (50-100%)",
+                fric_weather: "Weather (-10%/+5%)",
+                fric_cost: "Machine Cost: 60k",
+                kpi_rev_title: "Avg Mo. Revenue",
+                kpi_rev_sub: "Last Month Snapshot",
+                kpi_prof_title: "Net Profit (Mo)",
+                kpi_prof_sub: "After Tax & OpEx",
+                kpi_mar_title: "Net Margin",
+                kpi_mar_sub: "Profitability",
+                kpi_cash_title: "Cash Available",
+                kpi_cash_sub: "Machine Fund",
+                chart_title: "REALISTIC GROWTH PROJECTION",
+                chart_legend: "Active Machines",
+                summary_title: "Simulation Outcome",
+                footer: "NEONVEND SYSTEMS v2.0 // REALISM ENGINE ENABLED",
+                // Динамические строки
+                sum_part1: "After",
+                sum_part2: "months",
+                sum_part3: "with a",
+                sum_part4: "reinvestment strategy",
+                sum_part5: "Final Fleet",
+                sum_part6: "Units",
+                sum_part7: "active",
+                sum_part8: "Total Personal Income Withdrawn"
+            },
+            ru: {
+                subtitle: "Продвинутый Симулятор",
+                config_title: "КОНФИГУРАЦИЯ",
+                label_price: "Цена за чашку",
+                label_sales: "Продаж / День (Цель)",
+                label_machines: "Стартовые автоматы",
+                label_period: "Период реинвестиций",
+                label_rate: "Доля реинвестиций",
+                unit_cups: "чашек",
+                unit_units: "шт",
+                unit_months: "мес",
+                rate_low: "0% (Вывод)",
+                rate_high: "100% (Рост)",
+                friction_title: "ФАКТОРЫ РЕАЛИЗМА",
+                fric_lag: "Задержка установки (1 мес)",
+                fric_ramp: "Разгон (50-100%)",
+                fric_weather: "Погода (-10%/+5%)",
+                fric_cost: "Цена автомата: 60к",
+                kpi_rev_title: "Ср. Выручка (Мес)",
+                kpi_rev_sub: "Снимок последнего месяца",
+                kpi_prof_title: "Чистая Прибыль",
+                kpi_prof_sub: "После налогов и OpEx",
+                kpi_mar_title: "Рентабельность",
+                kpi_mar_sub: "Маржинальность",
+                kpi_cash_title: "Свободная касса",
+                kpi_cash_sub: "Фонд развития",
+                chart_title: "ПРОГНОЗ РОСТА БИЗНЕСА",
+                chart_legend: "Активные автоматы",
+                summary_title: "Результат Симуляции",
+                footer: "СИСТЕМА NEONVEND v2.0 // ДВИЖОК РЕАЛИЗМА ВКЛЮЧЕН",
+                // Динамические строки
+                sum_part1: "Через",
+                sum_part2: "месяцев",
+                sum_part3: "со стратегией реинвестирования",
+                sum_part4: "",
+                sum_part5: "Итоговый парк",
+                sum_part6: "автоматов",
+                sum_part7: "активно",
+                sum_part8: "Выведено личных средств"
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Элементы
         const inputs = {
             price: document.getElementById('input-price'),
             sales: document.getElementById('input-sales'),
             machines: document.getElementById('input-machines'),
             period: document.getElementById('input-period'),
-            rate: document.getElementById('input-rate') // New
+            rate: document.getElementById('input-rate')
         };
 
         const displays = {
@@ -280,7 +385,7 @@
             sales: document.getElementById('val-sales'),
             machines: document.getElementById('val-machines'),
             period: document.getElementById('val-period'),
-            rate: document.getElementById('val-rate') // New
+            rate: document.getElementById('val-rate')
         };
 
         const kpis = {
@@ -292,21 +397,67 @@
 
         const summaryText = document.getElementById('summary-text');
 
-        // Chart Instance
+        // Экземпляр графика
         let growthChart = null;
 
-        // Formatter
-        const money = new Intl.NumberFormat('uk-UA', {
-            style: 'currency',
-            currency: 'UAH',
-            maximumFractionDigits: 0
-        });
+        // Переключение языка
+        function setLang(lang) {
+            currentLang = lang;
+            
+            // UI кнопок
+            document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+            document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
+            document.getElementById('btn-en').classList.toggle('text-cyber-lime', lang === 'ru');
+            document.getElementById('btn-ru').classList.toggle('text-cyber-lime', lang === 'en');
+            document.getElementById('btn-en').classList.toggle('bg-cyber-lime', lang === 'en'); // remove bg
+            
+            // Обновление статического текста
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
 
-        // Initialize Chart
+            // Перезапуск симуляции для обновления динамических текстов и графика
+            calculateAndSimulate();
+        }
+
+        // Форматирование денег
+        function formatMoney(amount) {
+            if (currentLang === 'en') {
+                return new Intl.NumberFormat('en-US', { 
+                    style: 'currency', 
+                    currency: 'UAH',
+                    maximumFractionDigits: 0 
+                }).format(amount).replace('UAH', '₴'); 
+            } else {
+                return new Intl.NumberFormat('ru-RU', { 
+                    style: 'currency', 
+                    currency: 'UAH',
+                    maximumFractionDigits: 0 
+                }).format(amount);
+            }
+        }
+
+        // Детерминированная "случайность"
+        // Генерирует одно и то же число для одного и того же месяца
+        function getSeededVariance(month) {
+            // Простая хеш-функция от номера месяца
+            const x = Math.sin(month * 12345) * 10000;
+            const rnd = x - Math.floor(x); // Число от 0 до 1
+            // Диапазон от -10% до +5% (0.90 до 1.05)
+            // rnd * 0.15 дает 0..0.15. Вычитаем 0.10 -> -0.10..+0.05
+            return 1 + (rnd * 0.15 - 0.10);
+        }
+
+        // Инициализация графика
         function initChart() {
-            const ctx = document.getElementById('growthChart').getContext('2d');
-
-            // Gradient fill
+            const canvas = document.getElementById('growthChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Градиент заливки
             const gradient = ctx.createLinearGradient(0, 0, 0, 400);
             gradient.addColorStop(0, 'rgba(212, 255, 112, 0.4)');
             gradient.addColorStop(1, 'rgba(212, 255, 112, 0.0)');
@@ -326,12 +477,12 @@
                         pointBorderWidth: 2,
                         pointRadius: 4,
                         fill: true,
-                        tension: 0.2 // Reduced tension for more realistic steps
+                        tension: 0.2
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // Важно для ресайза в flex контейнере
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -353,10 +504,10 @@
                         },
                         y: {
                             grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: {
-                                color: '#666',
+                            ticks: { 
+                                color: '#666', 
                                 stepSize: 1,
-                                font: { family: 'Space Grotesk' }
+                                font: { family: 'Space Grotesk' } 
                             },
                             beginAtZero: true
                         }
@@ -366,148 +517,164 @@
         }
 
         function calculateAndSimulate() {
-            // 1. Get Values
+            // 1. Получение значений
             const price = parseInt(inputs.price.value);
             const targetSales = parseInt(inputs.sales.value);
             const startMachinesCount = parseInt(inputs.machines.value);
             const period = parseInt(inputs.period.value);
             const reinvestRate = parseInt(inputs.rate.value) / 100;
 
-            // 2. Update Display Numbers
+            // 2. Обновление дисплеев
             displays.price.innerText = price;
             displays.sales.innerText = targetSales;
             displays.machines.innerText = startMachinesCount;
             displays.period.innerText = period;
             displays.rate.innerText = inputs.rate.value;
 
-            // 3. Simulation State
+            // 3. Состояние симуляции
             let machineFund = 0;
             let personalWithdrawn = 0;
-
-            // Machine Object: { activeMonth: 0 }
-            // activeMonth 0 = Installing (No rev, No OpEx)
-            // activeMonth 1 = 50% Efficiency
-            // activeMonth 2 = 80% Efficiency
-            // activeMonth 3+ = 100% Efficiency
-
-            // Initial machines are assumed to be "Ready to operate" (activeMonth 1) for the sake of the start
+            
+            // Объект машины: { activeMonth: 0 } 
+            // activeMonth 0 = Установка (Нет выручки, Нет расходов)
+            // activeMonth 1 = 50% Эффективность
+            // activeMonth 2 = 80% Эффективность
+            // activeMonth 3+ = 100% Эффективность
             let fleet = Array(startMachinesCount).fill().map(() => ({ activeMonth: 1 }));
 
             const chartLabels = [];
             const chartData = [];
 
-            // Add Month 0
+            // Добавляем Старт
             chartLabels.push('Start');
             chartData.push(startMachinesCount);
-
-            // Variables for final dashboard snapshot (last month)
+            
             let lastMonthRevenue = 0;
             let lastMonthProfit = 0;
 
-            // 4. Monthly Loop
+            // 4. Ежемесячный цикл
             for (let m = 1; m <= period; m++) {
                 let monthlyRevenue = 0;
                 let monthlyOpEx = 0;
-                let activeCount = 0; // For chart
+                let activeCount = 0; // Для графика
 
-                // Random Variance: -10% to +5%
-                // factor between 0.90 and 1.05
-                const marketVariance = 1 + (Math.random() * 0.15 - 0.10);
+                // ИСПОЛЬЗУЕМ ДЕТЕРМИНИРОВАННУЮ ВАРИАТИВНОСТЬ ВМЕСТО RANDOM
+                const marketVariance = getSeededVariance(m);
 
-                // Process each machine
+                // Обработка каждой машины
                 fleet.forEach(machine => {
                     if (machine.activeMonth === 0) {
-                        // Installing: No Revenue, No OpEx.
-                        // Just ages to month 1 next time.
+                        // Установка
                     } else {
-                        // Operating
+                        // Работает
                         let efficiency = 1.0;
                         if (machine.activeMonth === 1) efficiency = 0.5;
                         else if (machine.activeMonth === 2) efficiency = 0.8;
-
-                        // Calculate Revenue for this specific machine
+                        
+                        // Расчет выручки
                         const machineSales = targetSales * efficiency * marketVariance;
                         monthlyRevenue += machineSales * price * DAYS_IN_MONTH;
-
-                        // OpEx applies to operating machines
+                        
+                        // OpEx
                         monthlyOpEx += OPEX_PER_MACHINE;
                         activeCount++;
                     }
-
-                    // Age the machine for next month
+                    
+                    // Старение машины
                     machine.activeMonth++;
                 });
 
-                // Financials
+                // Финансы
                 const monthlyCOGS = monthlyRevenue * COGS_RATE;
                 const monthlyNetProfit = monthlyRevenue - monthlyCOGS - monthlyOpEx - FIXED_TAX;
 
-                // Cash Flow Handling
+                // Управление потоками (Cash Flow)
                 if (monthlyNetProfit > 0) {
                     const investable = monthlyNetProfit * reinvestRate;
                     const personal = monthlyNetProfit * (1 - reinvestRate);
-
+                    
                     machineFund += investable;
                     personalWithdrawn += personal;
                 } else {
-                    // Loss eats into machine fund first
-                    machineFund += monthlyNetProfit;
+                    machineFund += monthlyNetProfit; 
                 }
 
-                // Buy Logic (End of Month)
-                // If we buy, new machine starts at activeMonth 0 (Installing next month)
+                // Логика покупки
                 if (machineFund >= MACHINE_COST) {
                     const affordable = Math.floor(machineFund / MACHINE_COST);
                     for(let i=0; i<affordable; i++) {
-                        fleet.push({ activeMonth: 0 }); // Will be 0 next month (Installing)
+                        fleet.push({ activeMonth: 0 }); // Начинает с установки
                     }
                     machineFund -= (affordable * MACHINE_COST);
                 }
 
-                // Store Data
-                chartLabels.push(`Mo ${m}`);
-                chartData.push(activeCount); // Only graph active machines
+                // Сохранение данных
+                chartLabels.push(currentLang === 'en' ? `Mo ${m}` : `Мес ${m}`);
+                chartData.push(activeCount); 
 
-                // Snapshot for dashboard
                 lastMonthRevenue = monthlyRevenue;
                 lastMonthProfit = monthlyNetProfit;
             }
 
-            // 5. Update KPIs (Based on Last Month of Sim)
-            kpis.revenue.innerText = money.format(lastMonthRevenue);
-            kpis.profit.innerText = money.format(lastMonthProfit);
+            // 5. Обновление KPI
+            kpis.revenue.innerText = formatMoney(lastMonthRevenue);
+            kpis.profit.innerText = formatMoney(lastMonthProfit);
             kpis.profit.classList.toggle('text-red-500', lastMonthProfit < 0);
             kpis.profit.classList.toggle('text-white', lastMonthProfit >= 0);
 
             const margin = lastMonthRevenue > 0 ? ((lastMonthProfit / lastMonthRevenue) * 100).toFixed(1) : 0;
             kpis.margin.innerText = `${margin}%`;
-            kpis.cash.innerText = money.format(machineFund);
+            kpis.cash.innerText = formatMoney(machineFund);
 
-            // 6. Update Chart
-            growthChart.data.labels = chartLabels;
-            growthChart.data.datasets[0].data = chartData;
-            growthChart.update();
+            // 6. Обновление Графика (С защитой)
+            if (growthChart) {
+                growthChart.data.labels = chartLabels;
+                growthChart.data.datasets[0].data = chartData;
+                if (translations[currentLang]) {
+                    growthChart.data.datasets[0].label = translations[currentLang].chart_legend;
+                }
+                growthChart.update();
+            }
 
-            // 7. Update Summary
-            summaryText.innerHTML = `
-                After <strong class="text-white">${period} months</strong> with a
-                <strong class="text-purple-400">${inputs.rate.value}%</strong> reinvestment strategy:
-                <br><br>
-                Final Fleet: <strong class="text-cyber-lime text-xl">${fleet.length}</strong> Units
-                (<span class="text-xs text-gray-400">${chartData[chartData.length-1]} active</span>).
-                <br>
-                Total Personal Income Withdrawn: <strong class="text-cyber-cyan text-xl">${money.format(personalWithdrawn)}</strong>.
-            `;
+            // 7. Обновление Сводки
+            const t = translations[currentLang];
+            
+            if (currentLang === 'en') {
+                summaryText.innerHTML = `
+                    ${t.sum_part1} <strong class="text-white">${period} ${t.sum_part2}</strong> ${t.sum_part3} 
+                    <strong class="text-purple-400">${inputs.rate.value}%</strong> ${t.sum_part4}:
+                    <br><br>
+                    ${t.sum_part5}: <strong class="text-cyber-lime text-xl">${fleet.length}</strong> ${t.sum_part6} 
+                    (<span class="text-xs text-gray-400">${chartData[chartData.length-1]} ${t.sum_part7}</span>).
+                    <br>
+                    ${t.sum_part8}: <strong class="text-cyber-cyan text-xl">${formatMoney(personalWithdrawn)}</strong>.
+                `;
+            } else {
+                summaryText.innerHTML = `
+                    ${t.sum_part1} <strong class="text-white">${period} ${t.sum_part2}</strong> ${t.sum_part3} 
+                    <strong class="text-purple-400">${inputs.rate.value}%</strong>:
+                    <br><br>
+                    ${t.sum_part5}: <strong class="text-cyber-lime text-xl">${fleet.length}</strong> ${t.sum_part6} 
+                    (<span class="text-xs text-gray-400">${chartData[chartData.length-1]} ${t.sum_part7}</span>).
+                    <br>
+                    ${t.sum_part8}: <strong class="text-cyber-cyan text-xl">${formatMoney(personalWithdrawn)}</strong>.
+                `;
+            }
         }
 
-        // Initialize
+        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             initChart();
-            calculateAndSimulate();
+            setLang('en'); // По умолчанию EN
 
-            // Listeners
+            // Слушатели событий
             Object.values(inputs).forEach(input => {
                 input.addEventListener('input', calculateAndSimulate);
+            });
+            
+            // Обработчик ресайза окна для графика
+            window.addEventListener('resize', () => {
+                if(growthChart) growthChart.resize();
             });
         });
 
