@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonVend // Business Simulator</title>
+
+    <!-- Fonts: Space Grotesk (Headings) and Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#050505',
+                            card: '#0F0F0F',
+                            lime: '#d4ff70',
+                            cyan: '#00f0ff',
+                            gray: '#1f1f1f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for Cyberpunk Feel */
+        body {
+            background-color: #050505;
+            background-image:
+                linear-gradient(rgba(212, 255, 112, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 255, 112, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: #e5e5e5;
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(212, 255, 112, 0.3);
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #d4ff70;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 15px rgba(212, 255, 112, 0.8);
+            border: 2px solid #050505;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #333;
+            border-radius: 2px;
+        }
+
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #444;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col gap-6">
+
+    <!-- Header -->
+    <header class="w-full max-w-7xl mx-auto flex justify-between items-center mb-4">
+        <div>
+            <h1 class="font-mono text-3xl md:text-4xl font-bold text-white tracking-tighter">
+                NEON<span class="text-cyber-lime glow-text">VEND</span>
+            </h1>
+            <p class="text-gray-400 text-sm tracking-widest uppercase mt-1">Advanced Realism Simulator</p>
+        </div>
+        <div class="hidden md:block text-right">
+            <div class="text-xs text-cyber-cyan font-mono border border-cyber-cyan/30 px-3 py-1 rounded bg-cyber-cyan/5">
+                SYSTEM STATUS: ONLINE
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Controls (4 cols) -->
+        <section class="lg:col-span-4 flex flex-col gap-6">
+            <div class="glass-panel rounded-2xl p-6 lg:p-8 h-full">
+                <h2 class="font-mono text-xl text-white mb-8 border-b border-white/10 pb-4">
+                    <span class="text-cyber-lime mr-2">///</span> CONFIGURATION
+                </h2>
+
+                <div class="space-y-8">
+                    <!-- Slider A: Price -->
+                    <div class="group">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-sm text-gray-400 font-medium">Price per Cup</label>
+                            <span class="font-mono text-xl text-cyber-lime font-bold"><span id="val-price">30</span> ₴</span>
+                        </div>
+                        <input type="range" id="input-price" min="20" max="50" step="1" value="30">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
+                            <span>20</span><span>50</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider B: Sales -->
+                    <div class="group">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-sm text-gray-400 font-medium">Sales / Day (Target)</label>
+                            <span class="font-mono text-xl text-cyber-cyan font-bold"><span id="val-sales">40</span> cups</span>
+                        </div>
+                        <input type="range" id="input-sales" min="20" max="160" step="5" value="40">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
+                            <span>20</span><span>160</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider C: Start Units -->
+                    <div class="group">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-sm text-gray-400 font-medium">Starting Machines</label>
+                            <span class="font-mono text-xl text-white font-bold"><span id="val-machines">1</span> units</span>
+                        </div>
+                        <input type="range" id="input-machines" min="1" max="10" step="1" value="1">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
+                            <span>1</span><span>10</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider V: Period -->
+                    <div class="group">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-sm text-gray-400 font-medium">Reinvestment Period</label>
+                            <span class="font-mono text-xl text-white font-bold"><span id="val-period">12</span> months</span>
+                        </div>
+                        <input type="range" id="input-period" min="6" max="36" step="1" value="12">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
+                            <span>6m</span><span>36m</span>
+                        </div>
+                    </div>
+
+                    <!-- Slider R: Reinvestment Rate (NEW) -->
+                    <div class="group">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-sm text-gray-400 font-medium">Reinvestment Rate</label>
+                            <span class="font-mono text-xl text-purple-400 font-bold"><span id="val-rate">50</span>%</span>
+                        </div>
+                        <input type="range" id="input-rate" min="0" max="100" step="5" value="50">
+                        <div class="flex justify-between text-[10px] text-gray-600 font-mono mt-1">
+                            <span>0% (Cash Out)</span><span>100% (Growth)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/10">
+                    <div class="text-xs text-gray-500 font-mono mb-2">FRICTION FACTORS ENABLED</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-400">
+                        <div><span class="text-red-400">●</span> Install Lag (1mo)</div>
+                        <div><span class="text-red-400">●</span> Ramp-Up (50-100%)</div>
+                        <div><span class="text-red-400">●</span> Weather (-10%/+5%)</div>
+                        <div><span class="text-cyber-lime">●</span> Machine Cost: 60k</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column: Dashboard (8 cols) -->
+        <section class="lg:col-span-8 flex flex-col gap-6">
+
+            <!-- Unit Economics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Revenue Card -->
+                <div class="glass-panel p-5 rounded-xl border-l-2 border-cyber-lime">
+                    <div class="text-gray-500 text-xs font-mono uppercase">Avg Mo. Revenue</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="kpi-revenue">0 ₴</div>
+                    <div class="text-xs text-cyber-lime mt-1 font-mono">Last Month Snapshot</div>
+                </div>
+
+                <!-- Net Profit Card -->
+                <div class="glass-panel p-5 rounded-xl border-l-2 border-cyber-cyan">
+                    <div class="text-gray-500 text-xs font-mono uppercase">Net Profit (Mo)</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="kpi-profit">0 ₴</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono">After Tax & OpEx</div>
+                </div>
+
+                <!-- Margin Card -->
+                <div class="glass-panel p-5 rounded-xl border-l-2 border-purple-500">
+                    <div class="text-gray-500 text-xs font-mono uppercase">Net Margin</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="kpi-margin">0%</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono">Profitability</div>
+                </div>
+
+                <!-- Break Even Card -->
+                <div class="glass-panel p-5 rounded-xl border-l-2 border-orange-500">
+                    <div class="text-gray-500 text-xs font-mono uppercase">Cash Available</div>
+                    <div class="text-2xl font-bold text-white mt-1" id="kpi-cash">0 ₴</div>
+                    <div class="text-xs text-gray-400 mt-1 font-mono">Machine Fund</div>
+                </div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="glass-panel p-6 rounded-2xl flex-1 min-h-[300px] flex flex-col relative">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-mono text-lg text-white">REALISTIC GROWTH PROJECTION</h3>
+                    <div class="flex items-center gap-2 text-xs font-mono">
+                        <span class="w-3 h-3 bg-cyber-lime rounded-full"></span> Active Machines
+                    </div>
+                </div>
+                <div class="relative flex-1 w-full h-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="glass-panel p-6 rounded-2xl bg-gradient-to-r from-cyber-lime/10 to-transparent border border-cyber-lime/20">
+                <h4 class="font-mono text-cyber-lime text-sm mb-2 uppercase tracking-wide">Simulation Outcome</h4>
+                <p class="text-white/90 text-lg leading-relaxed" id="summary-text">
+                    Initializing...
+                </p>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="max-w-7xl mx-auto w-full text-center text-gray-600 text-xs font-mono py-6">
+        NEONVEND SYSTEMS v2.0 // REALISM ENGINE ENABLED
+    </footer>
+
+    <!-- LOGIC -->
+    <script>
+        // Constants
+        const MACHINE_COST = 60000;
+        const OPEX_PER_MACHINE = 2000 + 1500 + 500; // Rent + Logistics + Repair
+        const FIXED_TAX = 3500;
+        const DAYS_IN_MONTH = 30;
+        const COGS_RATE = 0.35;
+
+        // Elements
+        const inputs = {
+            price: document.getElementById('input-price'),
+            sales: document.getElementById('input-sales'),
+            machines: document.getElementById('input-machines'),
+            period: document.getElementById('input-period'),
+            rate: document.getElementById('input-rate') // New
+        };
+
+        const displays = {
+            price: document.getElementById('val-price'),
+            sales: document.getElementById('val-sales'),
+            machines: document.getElementById('val-machines'),
+            period: document.getElementById('val-period'),
+            rate: document.getElementById('val-rate') // New
+        };
+
+        const kpis = {
+            revenue: document.getElementById('kpi-revenue'),
+            profit: document.getElementById('kpi-profit'),
+            margin: document.getElementById('kpi-margin'),
+            cash: document.getElementById('kpi-cash')
+        };
+
+        const summaryText = document.getElementById('summary-text');
+
+        // Chart Instance
+        let growthChart = null;
+
+        // Formatter
+        const money = new Intl.NumberFormat('uk-UA', {
+            style: 'currency',
+            currency: 'UAH',
+            maximumFractionDigits: 0
+        });
+
+        // Initialize Chart
+        function initChart() {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+
+            // Gradient fill
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(212, 255, 112, 0.4)');
+            gradient.addColorStop(1, 'rgba(212, 255, 112, 0.0)');
+
+            growthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Active Machines',
+                        data: [],
+                        borderColor: '#d4ff70',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#050505',
+                        pointBorderColor: '#d4ff70',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.2 // Reduced tension for more realistic steps
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(5, 5, 5, 0.9)',
+                            titleColor: '#d4ff70',
+                            bodyColor: '#fff',
+                            borderColor: '#333',
+                            borderWidth: 1,
+                            titleFont: { family: 'Space Grotesk' },
+                            bodyFont: { family: 'Inter' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#666', font: { family: 'Space Grotesk' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: {
+                                color: '#666',
+                                stepSize: 1,
+                                font: { family: 'Space Grotesk' }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateAndSimulate() {
+            // 1. Get Values
+            const price = parseInt(inputs.price.value);
+            const targetSales = parseInt(inputs.sales.value);
+            const startMachinesCount = parseInt(inputs.machines.value);
+            const period = parseInt(inputs.period.value);
+            const reinvestRate = parseInt(inputs.rate.value) / 100;
+
+            // 2. Update Display Numbers
+            displays.price.innerText = price;
+            displays.sales.innerText = targetSales;
+            displays.machines.innerText = startMachinesCount;
+            displays.period.innerText = period;
+            displays.rate.innerText = inputs.rate.value;
+
+            // 3. Simulation State
+            let machineFund = 0;
+            let personalWithdrawn = 0;
+
+            // Machine Object: { activeMonth: 0 }
+            // activeMonth 0 = Installing (No rev, No OpEx)
+            // activeMonth 1 = 50% Efficiency
+            // activeMonth 2 = 80% Efficiency
+            // activeMonth 3+ = 100% Efficiency
+
+            // Initial machines are assumed to be "Ready to operate" (activeMonth 1) for the sake of the start
+            let fleet = Array(startMachinesCount).fill().map(() => ({ activeMonth: 1 }));
+
+            const chartLabels = [];
+            const chartData = [];
+
+            // Add Month 0
+            chartLabels.push('Start');
+            chartData.push(startMachinesCount);
+
+            // Variables for final dashboard snapshot (last month)
+            let lastMonthRevenue = 0;
+            let lastMonthProfit = 0;
+
+            // 4. Monthly Loop
+            for (let m = 1; m <= period; m++) {
+                let monthlyRevenue = 0;
+                let monthlyOpEx = 0;
+                let activeCount = 0; // For chart
+
+                // Random Variance: -10% to +5%
+                // factor between 0.90 and 1.05
+                const marketVariance = 1 + (Math.random() * 0.15 - 0.10);
+
+                // Process each machine
+                fleet.forEach(machine => {
+                    if (machine.activeMonth === 0) {
+                        // Installing: No Revenue, No OpEx.
+                        // Just ages to month 1 next time.
+                    } else {
+                        // Operating
+                        let efficiency = 1.0;
+                        if (machine.activeMonth === 1) efficiency = 0.5;
+                        else if (machine.activeMonth === 2) efficiency = 0.8;
+
+                        // Calculate Revenue for this specific machine
+                        const machineSales = targetSales * efficiency * marketVariance;
+                        monthlyRevenue += machineSales * price * DAYS_IN_MONTH;
+
+                        // OpEx applies to operating machines
+                        monthlyOpEx += OPEX_PER_MACHINE;
+                        activeCount++;
+                    }
+
+                    // Age the machine for next month
+                    machine.activeMonth++;
+                });
+
+                // Financials
+                const monthlyCOGS = monthlyRevenue * COGS_RATE;
+                const monthlyNetProfit = monthlyRevenue - monthlyCOGS - monthlyOpEx - FIXED_TAX;
+
+                // Cash Flow Handling
+                if (monthlyNetProfit > 0) {
+                    const investable = monthlyNetProfit * reinvestRate;
+                    const personal = monthlyNetProfit * (1 - reinvestRate);
+
+                    machineFund += investable;
+                    personalWithdrawn += personal;
+                } else {
+                    // Loss eats into machine fund first
+                    machineFund += monthlyNetProfit;
+                }
+
+                // Buy Logic (End of Month)
+                // If we buy, new machine starts at activeMonth 0 (Installing next month)
+                if (machineFund >= MACHINE_COST) {
+                    const affordable = Math.floor(machineFund / MACHINE_COST);
+                    for(let i=0; i<affordable; i++) {
+                        fleet.push({ activeMonth: 0 }); // Will be 0 next month (Installing)
+                    }
+                    machineFund -= (affordable * MACHINE_COST);
+                }
+
+                // Store Data
+                chartLabels.push(`Mo ${m}`);
+                chartData.push(activeCount); // Only graph active machines
+
+                // Snapshot for dashboard
+                lastMonthRevenue = monthlyRevenue;
+                lastMonthProfit = monthlyNetProfit;
+            }
+
+            // 5. Update KPIs (Based on Last Month of Sim)
+            kpis.revenue.innerText = money.format(lastMonthRevenue);
+            kpis.profit.innerText = money.format(lastMonthProfit);
+            kpis.profit.classList.toggle('text-red-500', lastMonthProfit < 0);
+            kpis.profit.classList.toggle('text-white', lastMonthProfit >= 0);
+
+            const margin = lastMonthRevenue > 0 ? ((lastMonthProfit / lastMonthRevenue) * 100).toFixed(1) : 0;
+            kpis.margin.innerText = `${margin}%`;
+            kpis.cash.innerText = money.format(machineFund);
+
+            // 6. Update Chart
+            growthChart.data.labels = chartLabels;
+            growthChart.data.datasets[0].data = chartData;
+            growthChart.update();
+
+            // 7. Update Summary
+            summaryText.innerHTML = `
+                After <strong class="text-white">${period} months</strong> with a
+                <strong class="text-purple-400">${inputs.rate.value}%</strong> reinvestment strategy:
+                <br><br>
+                Final Fleet: <strong class="text-cyber-lime text-xl">${fleet.length}</strong> Units
+                (<span class="text-xs text-gray-400">${chartData[chartData.length-1]} active</span>).
+                <br>
+                Total Personal Income Withdrawn: <strong class="text-cyber-cyan text-xl">${money.format(personalWithdrawn)}</strong>.
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            calculateAndSimulate();
+
+            // Listeners
+            Object.values(inputs).forEach(input => {
+                input.addEventListener('input', calculateAndSimulate);
+            });
+        });
+
+    </script>
+</body>
+</html>
